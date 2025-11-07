@@ -33,9 +33,7 @@ spec:
             - >
               while true;
               do
-                if [ -f /var/log/app.log ];
-                then cat /var/log/app.log;
-                fi;
+                echo "Sidecar: collecting logs...";
                 sleep 5;
               done
           volumeMounts:
