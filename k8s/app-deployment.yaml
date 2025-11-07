@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummyrequestcounter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummyrequestcounter
+  template:
+    metadata:
+      labels:
+        app: dummyrequestcounter
+    spec:
+      containers:
+        - name: dummyrequestcounter
+          image: marilyn12345/dummyrequestcounter:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: REDIS_HOST
+              value: redis-service
+            - name: REDIS_PORT
+              value: "6379"
+          volumeMounts:
+            - name: log-volume
+              mountPath: /var/log
+
+        - name: log-sidecar
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - >
+              while true;
+              do
+                if [ -f /var/log/app.log ];
+                then cat /var/log/app.log;
+                fi;
+                sleep 5;
+              done
+          volumeMounts:
+            - name: log-volume
+              mountPath: /var/log
+
+      volumes:
+        - name: log-volume
+          emptyDir: {}
